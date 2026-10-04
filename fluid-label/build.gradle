@@ -1,0 +1,78 @@
+plugins {
+    // 钉选 6.0.54（MDK 写 [6.0,6.2)）；版本更新时同步 versions.js 矩阵。
+    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+}
+
+version = "0.1.0"
+group = "com.fluidlabel"
+archivesBaseName = "fluid-label"
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+// ★ 第二阶段必需：vendored 的 AE2/GTCEu jar 是 **classfile 65（Java 21）**，javac 17 拒绝读取
+//   （"类文件具有错误的版本 65.0, 应为 61.0"）⇒ 编译 JDK 必须是 21（toolchain 上一行）。
+//   但产物必须仍是 **classfile 61（Java 17）**：Forge 1.20.1 的运行环境是 Java 17，classfile 65 会在 JRE 17 上
+//   抛 UnsupportedClassVersionError。故显式钉住字节码版本（javac 21 的默认值是 65，必须覆盖）。
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+    copyIdeResources = true
+    runs {
+        client {
+            workingDirectory project.file('run')
+        }
+        server {
+            workingDirectory project.file('run')
+        }
+        gameTestServer {
+            workingDirectory project.file('run')
+        }
+        data {
+            workingDirectory project.file('run')
+            args '--mod', mod_id, '--all'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:1.20.1-47.3.0"
+    // EMI：本地 vendored jar（maven.terraformersmc.com 在本机不可达）。compileOnly ⇒ 绝不进产物。
+    compileOnly files("libs/emi-1.1.24+1.20.1+forge.jar")
+    // ★ 第二阶段（PLAN §6.5）：AE2（GTO 补丁版 15.267.4）/ GTCEu 26.7.3 / LDLib —— 一律 compileOnly，
+    //   绝不 runtimeOnly、绝不进产物（运行时由整合包提供）。注入点 4 的父类 Widget 在 LDLib 里 ⇒ 编译期必需。
+    compileOnly files("libs/appliedenergistics2-forge-1.20.1-15.267.4.jar")
+    compileOnly files("libs/gtceu-1.20.1-forge-1.20.1-26.7.3.jar")
+    compileOnly files("libs/ldlib-forge-1.20.1-1.0.50.jar")
+}
+
+// mods.toml / pack.mcmeta 里的 ${mod_id} 等由 Gradle expand 替换（与 scaffold 的 {{}} 不冲突）。
+def replaceProperties = [
+    minecraft_version: "1.20.1", forge_version: "47.3.0",
+    mod_id: "fluidlabel", mod_name: mod_name, mod_license: mod_license,
+    mod_version: mod_version, mod_authors: mod_authors, mod_description: mod_description,
+]
+
+processResources {
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand replaceProperties }
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": mod_id,
+            "Implementation-Version": project.version,
+            "MixinConfigs": "fluidlabel.mixins.json",
+        ])
+    }
+    finalizedBy 'reobfJar'
+}

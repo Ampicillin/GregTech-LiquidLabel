@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.fluidlabel.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "injectors": { "defaultRequire": 0 },
+  "client": [
+    "FluidEmiStackMixin",
+    "TankWidgetMixin",
+    "AeKeyRenderingMixin",
+    "GtAeFluidDisplayMixin",
+    "DrawerHelperFluidMixin"
+  ]
+}

@@ -1,0 +1,24 @@
+# 构建产物与工具链缓存
+fluid-label/build/
+fluid-label/.gradle/
+fluid-label/out/
+fluid-label/fluidlabel_expanded/
+fluid-label/run/
+.gradle/
+
+# 临时诊断 / 取证目录（可由 tools/ 下脚本重新生成）
+_diag/
+_net/
+_jaraudit/
+.dsh-write-probe.txt
+
+# 语料包内重复的第三方 jar 与派生文本；真输入是 _gtodata/assets/**/lang/*.json
+_gtodata/META-INF/
+_gtodata/_gtceu_entries.txt
+_gtodata/_gtolib_entries.txt
+
+# 杂项
+*.log
+*.class
+__pycache__/
+*.pyc

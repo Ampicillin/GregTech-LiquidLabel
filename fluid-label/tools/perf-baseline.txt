@@ -1,0 +1,27 @@
+﻿=== PerfProbe  JVM=21.0.12.1  os=Windows 11  cores=16 ===
+语料：显示名 1898 条、注册名 3800 条、随包锚点 83 条（表 193389 字符 / 188.9 KB）
+
+labelByRegistryName（每槽每帧 1 次）                              中位    0.088 ms / 轮   每次    0.023 µs
+labelByDisplayName（注册名 miss 时才走）                           中位    0.044 ms / 轮   每次    0.023 µs
+aliasLabel（最高优先级，每槽每帧 1 次；默认为空表）                           中位    0.016 ms / 轮   每次    0.008 µs
+CHM 快照 get + 布局键 String 拼接（每槽每帧各 1 次）                      中位    0.051 ms / 轮   每次    0.255 µs
+每帧 1 个槽的纯逻辑全链路（不含 GL/解析）                                   中位    0.000 ms / 轮   每次    0.400 µs
+每帧 8 个槽的纯逻辑全链路（不含 GL/解析）                                   中位    0.001 ms / 轮   每次    0.075 µs
+每帧 32 个槽的纯逻辑全链路（不含 GL/解析）                                  中位    0.005 ms / 轮   每次    0.141 µs
+每帧 128 个槽的纯逻辑全链路（不含 GL/解析）                                 中位    0.010 ms / 轮   每次    0.076 µs
+
+DistinctMds.assignLabels（DYNAMIC 重建，可见 16 个液体）             中位    0.185 ms / 轮   每次  184.700 µs
+DistinctMds.assignLabels（DYNAMIC 重建，可见 50 个液体）             中位    0.149 ms / 轮   每次  149.000 µs
+DistinctMds.assignLabels（DYNAMIC 重建，可见 100 个液体）            中位    0.221 ms / 轮   每次  220.700 µs
+DistinctMds.assignLabels（DYNAMIC 重建，可见 200 个液体）            中位    0.443 ms / 轮   每次  442.800 µs
+DistinctMds.assignLabels（DYNAMIC 重建，可见 500 个液体）            中位    0.897 ms / 轮   每次  896.800 µs
+DistinctMds.assignLabels（DYNAMIC 重建，可见 1898 个液体）           中位    2.485 ms / 轮   每次 2485.400 µs
+DistinctMds.applyAnchors（83 条锚点 / 可见 200 个）                中位    0.168 ms / 轮   每次  167.500 µs
+DistinctMds.labelForName（冷：每个新名字一次）                        中位    0.013 ms / 轮   每次    0.202 µs
+DistinctMds.labelForName（热：同一个名字反复问）                       中位    0.007 ms / 轮   每次    0.105 µs
+对照：每轮新建 4096 个 String 键（模拟 4096 槽次/秒的分配量）                  中位    0.379 ms / 轮   每次    0.093 µs
+
+堆：max=4028 MB  used=28.0 MB
+
+SINK=6008623（防止 JIT 把测量循环优化掉）
+=== 说明：以上全是 CPU 侧纯逻辑；GuiGraphics/Font 的绘制与 ResourceLocation.tryParse 不在此列。===
